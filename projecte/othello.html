@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ca">
+<!--
+	document comunicacions amb backend amb Node i AJAX
+	@author sergi grau, sergi.grau@fje.edu
+	@version 1.0
+	date 06.12.2015
+	format del document UTF-8
+
+	CHANGELOG
+	06.12.2015
+	document comunicacions amb backend amb Node i AJAX
+
+	NOTES
+	ORIGEN
+    Desenvolupament Aplicacions Web. Jesuïtes el Clot
+	-->
+
+<head>
+    <meta charset="utf-8" />
+    <title>DAW2</title>
+    <meta name="author" content="sergi grau" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <style>
+        table {
+            display: inline;
+
+        }
+
+
+
+        #tablero td:hover {
+            background-color: grey;
+        }
+
+        #tablero td:active {
+            background-color: red;
+        }
+
+        tr:nth-child(odd)>td:nth-child(odd) {
+            width: 60px;
+            height: 60px;
+            border: 2px solid black;
+            background-color: green;
+        }
+
+        tr:nth-child(odd)>td:nth-child(even) {
+            width: 60px;
+            height: 60px;
+            border: 2px solid black;
+            background-color: rgb(11, 193, 34);
+        }
+
+        tr:nth-child(even)>td:nth-child(odd) {
+            width: 60px;
+            height: 60px;
+            border: 2px solid black;
+            background-color: rgb(11, 193, 34);
+        }
+
+        tr:nth-child(even)>td:nth-child(even) {
+            width: 60px;
+            height: 60px;
+            border: 2px solid black;
+            background-color: green;
+        }
+
+
+        img {
+            width: 50px;
+            height: 50px;
+
+        }
+        
+    </style>
+    <script type="text/javascript">
+        var inter = setInterval(inici, 3000);
+        var inter2 = setInterval(nombres, 3000);
+        class Jugador {
+            constructor(nombre, color, cantidad) {
+                this.nombre = nombre;
+                this.color = color;
+                this.cantidad = cantidad;
+            }
+        }
+        class Partida {
+            constructor(jugador1, jugador2, codigo) {
+                this.jugador1 = jugador1;
+                this.jugador2 = jugador2;
+                this.codigo = codigo;
+            }
+        }
+
+
+
+
+        document.write("<div id=\"turno\"></div>");
+        document.write("<table id=\"tablero\">");
+        for (var b = 1; b < 9; b++) {
+            document.write("<tr>");
+            for (var a = 0; a < 8; a++) {
+                document.write("<td id=", String.fromCharCode((a + 65)).concat(String(b)), "><img style=\"display: none;\" id=i", String.fromCharCode((a + 65)).concat(String(b)), "></img></td>");
+            }
+            document.write("</tr>");
+        }
+        document.write("</table>");
+        document.write("<table id=\"jugadores\">");
+        document.write("<tr><td>ColorFicha</td><td id=\"Nombre1\"></td><td>CantidadFicha</td></tr>");
+        document.write("<tr><td>ColorFicha</td><td id=\"Nombre2\"></td><td>CantidadFicha</td></tr>");
+
+        document.write("</table>");
+
+
+
+
+        var xhr;
+
+        function inici() {
+
+            
+
+            try {
+                // Firefox, Opera 8.0+, Safari, Chrome
+                xhr = new XMLHttpRequest();
+            } catch (e) {
+                // Internet Explorer
+                try {
+                    xhr = new ActiveXObject("Msxml2.XMLHTTP");
+                    //ie6+
+                } catch (e) {
+                    try {
+                        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                        //ie5
+                    } catch (e) {
+                        alert("El teu navegador no suporta AJAX!");
+                        return false;
+                    }
+                }
+            }
+            xhr.open('GET','turno2',true);
+            xhr.onload = function (e) {
+                if (this.status == 200) {
+                    var t=this.response;
+                    document.getElementById("turno").innerHTML="<h3>Turno "+t+"</h3>";
+                }
+            }
+            xhr.send();
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open('GET', 'array', true);
+
+
+            xhr2.onload = function (e) {
+                if (this.status == 200) {
+
+
+                    var arrayF = JSON.parse(this.response);
+
+
+                    var j = 0;
+
+                    var l = parseInt(Object.keys(arrayF).length);
+
+                    for (j = 0; j < l; j++) {
+
+                        if (arrayF[j].p.color == "b") {
+                            let h = (arrayF[j]);
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', 'fichab', true);
+                            xhr.responseType = 'arraybuffer';
+
+
+                            xhr.onload = function (e) {
+                                if (this.status == 200) {
+
+                                    var uInt8Array = new Uint8Array(this.response);
+                                    var i = uInt8Array.length;
+                                    var binaryString = new Array(i);
+                                    while (i--) {
+                                        binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                                    }
+
+                                    var data = binaryString.join('');
+                                    var base64 = window.btoa(data);
+
+
+
+                                    document.getElementById("i" + h.p.x + h.p.y).style.display = 'block';
+
+                                    document.getElementById("i" + h.p.x + h.p.y).src = "data:image/png;base64," + base64;
+
+                                }
+                            };
+
+                            xhr.send();
+                        }
+                        else if (arrayF[j].p.color == "n") {
+                            let h = (arrayF[j]);
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', 'fichan', true);
+                            xhr.responseType = 'arraybuffer';
+
+                            xhr.onload = function (e) {
+                                if (this.status == 200) {
+                                    var uInt8Array = new Uint8Array(this.response);
+                                    var i = uInt8Array.length;
+                                    var binaryString = new Array(i);
+                                    while (i--) {
+                                        binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                                    }
+
+                                    var data = binaryString.join('');
+                                    var base64 = window.btoa(data);
+
+
+
+                                    document.getElementById("i" + h.p.x + h.p.y).style.display = 'block';
+
+                                    document.getElementById("i" + h.p.x + h.p.y).src = "data:image/png;base64," + base64;
+
+                                }
+                            };
+
+                            xhr.send();
+                        }
+                    }
+
+                }
+            };
+            xhr2.send();
+
+        }
+
+        function nombres() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'names', true);
+
+
+            xhr.onload = function (e) {
+                if (this.status == 200) {
+                    var noms = this.response.split(',');
+
+                    document.getElementById("Nombre1").innerHTML = noms[0];
+                    document.getElementById("Nombre2").innerHTML = noms[1];
+
+                }
+
+
+            };
+            xhr.send();
+        }
+
+
+        function check(id) {
+
+            console.log(id);
+            var b;
+            var xhr3 = new XMLHttpRequest();
+            xhr3.open("GET", "check?id="
+                + id
+                , true);
+
+
+
+
+            xhr3.onload = function (e) {
+                if (this.status == 200) {
+
+
+                    b = this.response;
+                   
+                    if (b == "true") {
+                        turno();
+                    }
+
+
+                }
+            }
+            
+            xhr3.send();
+            return 0;
+
+
+        }
+
+        function turno() {
+
+
+            var xhr3 = new XMLHttpRequest();
+            xhr3.open("GET", "turno", true);
+
+
+
+
+            xhr3.onload = function (e) {
+                if (this.status == 200) {
+
+
+                    b = this.response;
+                    console.log(b);
+                    
+
+                }
+
+
+            }
+            xhr3.send();
+
+
+        }
+
+
+
+
+
+        window.addEventListener("load", inici, true);
+        window.addEventListener("load", nombres, true);
+        $('tr td').click(function () {
+            var id = $(this).attr('id');
+            check(id) == "true"
+
+
+            inici();
+        });
+
+
+
+
+    </script>
+</head>
+
+<body>
+    <br>
+
+</body>
+
+</html>
