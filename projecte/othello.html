@@ -22,6 +22,7 @@
     <meta name="author" content="sergi grau" />
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/assets/style.css" />
     <style>
         table {
             display: inline;
@@ -72,7 +73,6 @@
             height: 50px;
 
         }
-        
     </style>
     <script type="text/javascript">
         var inter = setInterval(inici, 3000);
@@ -106,8 +106,8 @@
         }
         document.write("</table>");
         document.write("<table id=\"jugadores\">");
-        document.write("<tr><td>ColorFicha</td><td id=\"Nombre1\"></td><td>CantidadFicha</td></tr>");
-        document.write("<tr><td>ColorFicha</td><td id=\"Nombre2\"></td><td>CantidadFicha</td></tr>");
+        document.write("<tr><td id=\"Color1\">ColorFicha</td><td id=\"Nombre1\"></td><td id=\"Cantidad1\">CantidadFicha</td></tr>");
+        document.write("<tr><td id=\"Color2\">ColorFicha</td><td id=\"Nombre2\"></td><td id=\"Cantidad2\">CantidadFicha</td></tr>");
 
         document.write("</table>");
 
@@ -118,7 +118,7 @@
 
         function inici() {
 
-            
+
 
             try {
                 // Firefox, Opera 8.0+, Safari, Chrome
@@ -138,11 +138,11 @@
                     }
                 }
             }
-            xhr.open('GET','turno2',true);
+            xhr.open('GET', 'turno2', true);
             xhr.onload = function (e) {
                 if (this.status == 200) {
-                    var t=this.response;
-                    document.getElementById("turno").innerHTML="<h3>Turno "+t+"</h3>";
+                    var t = this.response;
+                    document.getElementById("turno").innerHTML = "<h3>Turno " + t + "</h3>";
                 }
             }
             xhr.send();
@@ -243,23 +243,41 @@
                     var noms = this.response.split(',');
 
                     document.getElementById("Nombre1").innerHTML = noms[0];
+                    document.getElementById("Color1").innerHTML = "negro";
                     document.getElementById("Nombre2").innerHTML = noms[1];
+                    document.getElementById("Color2").innerHTML = "blanco";
 
                 }
 
 
             };
             xhr.send();
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open('GET', 'cantidad', true);
+
+
+            xhr2.onload = function (e) {
+                if (this.status == 200) {
+                    var cantidades = this.response.split(',');
+                    console.log(this.response);
+                    document.getElementById("Cantidad1").innerHTML = cantidades[0];
+                    document.getElementById("Cantidad2").innerHTML = cantidades[1];
+
+                }
+
+
+            };
+            xhr2.send();
         }
 
 
-        function check(id) {
+        function check(id,nom) {
 
-            console.log(id);
+            console.log(nom);
             var b;
             var xhr3 = new XMLHttpRequest();
             xhr3.open("GET", "check?id="
-                + id
+                + id+"&nom="+nom
                 , true);
 
 
@@ -270,7 +288,7 @@
 
 
                     b = this.response;
-                   
+
                     if (b == "true") {
                         turno();
                     }
@@ -278,7 +296,7 @@
 
                 }
             }
-            
+
             xhr3.send();
             return 0;
 
@@ -300,7 +318,7 @@
 
                     b = this.response;
                     console.log(b);
-                    
+
 
                 }
 
@@ -310,7 +328,27 @@
 
 
         }
+        function acabar(){
+            var xhr1 = new XMLHttpRequest();
+            xhr1.open("GET", "acabar", true);
 
+
+
+
+            xhr1.onload = function (e) {
+                if (this.status == 200) {
+
+
+                    b = this.response;
+                    console.log(b);
+
+
+                }
+
+
+            }
+            xhr1.send();
+        }
 
 
 
@@ -318,8 +356,23 @@
         window.addEventListener("load", inici, true);
         window.addEventListener("load", nombres, true);
         $('tr td').click(function () {
+            var getUrlParameter = function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+            };
+            var nom = getUrlParameter('nom');
             var id = $(this).attr('id');
-            check(id) == "true"
+            check(id,nom) == "true"
 
 
             inici();
@@ -333,7 +386,7 @@
 
 <body>
     <br>
-
+    <button onclick="acabar()">Acabar partida</button>
 </body>
 
 </html>

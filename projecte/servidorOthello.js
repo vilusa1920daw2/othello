@@ -18,9 +18,11 @@ var path = require("path");
 var url = require("url");
 var querystring = require("querystring");
 var fs = require('fs');
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 const basePath = __dirname;
 
-var assets = path.join(basePath,'assets');
+var assets = path.join(basePath, 'assets');
 var tt = "false";
 
 
@@ -35,6 +37,16 @@ class Jugador {
 	}
 	setNombre(nombre) {
 		this.nombre = nombre;
+	}
+	getCantidad() {
+		var count = 0;
+		for (var i = 0; i < Object.keys(arrayJson).length; i++) {
+
+			if (arrayJson[i].p.color == this.color.toLowerCase().charAt(0)) {
+				count++;
+			}
+		}
+		return count;
 	}
 }
 
@@ -59,7 +71,7 @@ function check(num, j) {
 				s = false;
 			} else if (arrayJson[j + sum].p.color == "n") {
 				s = false;
-			} else if ((arrayJson[j + sum].p.x == "A" || arrayJson[j + sum].p.x == "H") && num!=8 && num!=-8) {
+			} else if ((arrayJson[j + sum].p.x == "A" || arrayJson[j + sum].p.x == "H") && num != 8 && num != -8) {
 				texte = "";
 				s = false;
 			} else if (arrayJson[j + sum].p.color == "v") {
@@ -82,7 +94,7 @@ function check(num, j) {
 				s = false;
 			} else if (arrayJson[j + sum].p.color == "b") {
 				s = false;
-			} else if ((arrayJson[j + sum].p.x == "A" || arrayJson[j + sum].p.x == "H") && num!=8 && num!=-8)  {
+			} else if ((arrayJson[j + sum].p.x == "A" || arrayJson[j + sum].p.x == "H") && num != 8 && num != -8) {
 				texte = "";
 				s = false;
 			}
@@ -130,6 +142,7 @@ function colorar(text, j) {
 var jugador1 = new Jugador(null, "blanc", 2, 1, true);
 var jugador2 = new Jugador(null, "negre", 2, 1, false);
 var arrayJson = [];
+var strmongo ="";
 for (var b = 1; b < 9; b++) {
 	var f;
 	for (var a = 0; a < 8; a++) {
@@ -149,9 +162,72 @@ for (var b = 1; b < 9; b++) {
 	}
 
 }
+function mongodbf() {
+	var urldb = 'mongodb://localhost:27017/';
+	MongoClient.connect(urldb, function (err, dbo) {
+		assert.equal(null, err);
+		var db = dbo.db("othello");
 
+		var afegirDocument = function (db, err, callback) {
+			console.log("hey");
+			db.collection('jugadors').insertOne({
+				"Nom": jugador1.nombre,
+				"Color": jugador1.color,
+				"Puntuacio": jugador1.getCantidad().toString()
+			});
+			db.collection('jugadors').insertOne({
+				"Nom": jugador2.nombre,
+				"Color": jugador2.color,
+				"Puntuacio": jugador2.getCantidad().toString()
+			});
+			assert.equal(err, null);
+			console.log("Afegit document a col·lecció jugadors");
+			callback();
+
+		};
+		afegirDocument(db, err, function () {
+			dbo.close();
+		});
+
+
+
+	});
+}
+function mongodbf2() {
+	var urldb = 'mongodb://localhost:27017/';
+	console.log("hei");
+	
+	MongoClient.connect(urldb, function (err, dbo) {
+		assert.equal(null, err);
+		strmongo="";
+		var db = dbo.db("othello");
+		var consultarDocument = function (db, err,callback) {
+			var cursor = db.collection('jugadors').find({});
+			cursor.each(function (err, doc) {
+				assert.equal(err, null);
+				if (doc != null) {
+					
+					strmongo=strmongo+","+JSON.stringify(doc);
+				} else {
+					callback();
+				}
+			});
+		};
+		consultarDocument(db, err, function () {
+			
+			dbo.close();
+			
+			
+		});
+		
+	});
+	
+}
 
 function iniciar() {
+
+
+
 	function onRequest(request, response) {
 		var sortida;
 		var pathname = url.parse(request.url).pathname;
@@ -172,6 +248,25 @@ function iniciar() {
 				response.end();
 			});
 
+		} else if (pathname == '/acabar') {
+			response.writeHead(200, {
+				"Content-Type": "text/html; charset=utf-8"
+			});
+			mongodbf();
+			response.write("p");
+			response.end();
+
+		} else if (pathname == '/data') {
+			response.writeHead(200, {
+				"Content-Type": "application/json"
+			});
+			mongodbf2();
+			
+			console.log(strmongo.substr(1));
+			response.write(strmongo.substr(1));
+
+			response.end();
+
 		} else if (pathname == '/user') {
 			response.writeHead(200, {
 				"Content-Type": "text/html; charset=utf-8"
@@ -190,10 +285,12 @@ function iniciar() {
 				var consulta = url.parse(request.url, true).query;
 				var name = consulta['nom'];
 				jugador1.setNombre(name);
+				jugador1.color = "Negre";
 			} else if (jugador2.nombre == null) {
 				var consulta2 = url.parse(request.url, true).query;
 				var name2 = consulta2['nom'];
 				jugador2.setNombre(name2);
+				jugador2.color = "Blanc";
 			}
 
 			fs.readFile('./othello.html', function (err, sortida) {
@@ -236,6 +333,7 @@ function iniciar() {
 				"Content-Type": "application/json"
 			});
 			var str = JSON.stringify(arrayJson);
+			
 			response.write(str);
 
 			response.end();
@@ -262,10 +360,10 @@ function iniciar() {
 			});
 
 			var t;
-			if (jugador1.turno){
-				t="negro";
+			if (jugador1.turno) {
+				t = "negro";
 			}
-			else t="blanco";
+			else t = "blanco";
 			response.write(t);
 			response.end();
 		}
@@ -279,12 +377,22 @@ function iniciar() {
 			tt = "false";
 			response.write("hola");
 			response.end();
+		}
+		else if (pathname == '/cantidad') {
+			response.writeHead(200, {
+				"Content-Type": "text/html; charset=utf-8"
+			});
+
+			var str2 = jugador1.getCantidad() + "," + jugador2.getCantidad();
+			response.write(str2);
+			response.end();
 		} else if (pathname == '/check') {
 			response.writeHead(200, {
 				"Content-Type": "text/html; charset=utf-8"
 			});
 			var cambio2 = url.parse(request.url, true).query;
 			var id2 = cambio2['id'];
+			var nom = cambio2['nom'];
 			var x = id2.charAt(0);
 			var y = id2.charAt(1);
 
@@ -297,7 +405,7 @@ function iniciar() {
 					break;
 				}
 			}
-			if (jugador1.turno) {
+			if (jugador1.turno && jugador1.nombre == nom) {
 
 
 				if (color == "v") {
@@ -625,7 +733,7 @@ function iniciar() {
 				}
 
 			}
-			else if (jugador2.turno) {
+			else if (jugador2.turno && jugador2.nombre == nom) {
 
 
 				if (color == "v") {

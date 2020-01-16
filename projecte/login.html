@@ -39,9 +39,25 @@
             xhr.send();
             
         }
+        function inici(){
+            var name=document.getElementById("user").value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "data", true);
 
 
+            xhr.onload = function (e) {
+                if (this.status == 200) {
+                    console.log(this.response);
+                    document.getElementById("mongo").innerHTML = this.response;
+                }
 
+                
+            }
+            xhr.send();
+        }
+
+        window.addEventListener("load", inici, true);
 
     </script>
 </head>
@@ -50,7 +66,8 @@
     <p>login</p>
     <input type="text" id="user">
     <input type="submit"  onclick="myFunction()" value="Enviar">
-
+</br></br>
+<p id="mongo"></p>
 </body>
 
 </html>
