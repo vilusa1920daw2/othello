@@ -266,6 +266,15 @@ function iniciar() {
 			response.write("p");
 			response.end();
 
+		}else if(pathname == '/assets/style.css'){
+			fs.readFile('./assets/style.css', function (err, sortida) {
+				response.writeHead(200, {
+					'Content-Type': 'text/css'
+				});
+				response.write(sortida);
+				response.end();
+			});
+
 		} else if (pathname == '/data') {
 			response.writeHead(200, {
 				"Content-Type": "application/json"

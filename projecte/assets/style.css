@@ -1,3 +1,72 @@
-#turno{
-    color:red;
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+table {
+    display: inline;
+
+}
+
+#tablero td:hover {
+    background-color: grey;
+}
+
+#tablero td:active {
+    background-color: red;
+}
+
+tr:nth-child(odd)>td:nth-child(odd) {
+    width: 60px;
+    height: 60px;
+    border: 2px solid black;
+    background-color: green;
+}
+
+tr:nth-child(odd)>td:nth-child(even) {
+    width: 60px;
+    height: 60px;
+    border: 2px solid black;
+    background-color: rgb(11, 193, 34);
+}
+
+tr:nth-child(even)>td:nth-child(odd) {
+    width: 60px;
+    height: 60px;
+    border: 2px solid black;
+    background-color: rgb(11, 193, 34);
+}
+
+tr:nth-child(even)>td:nth-child(even) {
+    width: 60px;
+    height: 60px;
+    border: 2px solid black;
+    background-color: green;
+}
+
+img {
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+}
+
+#jugadores {
+    margin: 0 0 0 15px;
+}
+
+#jugadores tr {
+    border: 1px solid black;
+}
+
+#jugadores td {
+    width: 120px;
+    padding: 0 0 0 10px;
+    font-size: 20px;
+    border: 0px;
+    background-color: green;
 }
