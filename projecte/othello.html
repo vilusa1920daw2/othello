@@ -77,6 +77,11 @@
     <script type="text/javascript">
         var inter = setInterval(inici, 3000);
         var inter2 = setInterval(nombres, 3000);
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        const code=urlParams.get('code');
+        console.log(code);
         class Jugador {
             constructor(nombre, color, cantidad) {
                 this.nombre = nombre;
@@ -138,7 +143,7 @@
                     }
                 }
             }
-            xhr.open('GET', 'turno2', true);
+            xhr.open('GET', 'turno2?code='+code, true);
             xhr.onload = function (e) {
                 if (this.status == 200) {
                     var t = this.response;
@@ -147,7 +152,7 @@
             }
             xhr.send();
             var xhr2 = new XMLHttpRequest();
-            xhr2.open('GET', 'array', true);
+            xhr2.open('GET', 'array?code='+code, true);
 
 
             xhr2.onload = function (e) {
@@ -167,7 +172,7 @@
                             let h = (arrayF[j]);
 
                             var xhr = new XMLHttpRequest();
-                            xhr.open('GET', 'fichab', true);
+                            xhr.open('GET', 'fichab?code='+code, true);
                             xhr.responseType = 'arraybuffer';
 
 
@@ -199,7 +204,7 @@
                             let h = (arrayF[j]);
 
                             var xhr = new XMLHttpRequest();
-                            xhr.open('GET', 'fichan', true);
+                            xhr.open('GET', 'fichan?code='+code, true);
                             xhr.responseType = 'arraybuffer';
 
                             xhr.onload = function (e) {
@@ -235,7 +240,7 @@
 
         function nombres() {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'names', true);
+            xhr.open('GET', 'names?code='+code, true);
 
 
             xhr.onload = function (e) {
@@ -253,7 +258,7 @@
             };
             xhr.send();
             var xhr2 = new XMLHttpRequest();
-            xhr2.open('GET', 'cantidad', true);
+            xhr2.open('GET', 'cantidad?code='+code, true);
 
 
             xhr2.onload = function (e) {
@@ -271,13 +276,13 @@
         }
 
 
-        function check(id,nom) {
+        function check(id, nom) {
 
             console.log(nom);
             var b;
             var xhr3 = new XMLHttpRequest();
             xhr3.open("GET", "check?id="
-                + id+"&nom="+nom
+                + id + "&nom=" + nom+"&code="+code
                 , true);
 
 
@@ -307,7 +312,7 @@
 
 
             var xhr3 = new XMLHttpRequest();
-            xhr3.open("GET", "turno", true);
+            xhr3.open("GET", 'turno?code='+code, true);
 
 
 
@@ -328,9 +333,9 @@
 
 
         }
-        function acabar(){
+        function acabar() {
             var xhr1 = new XMLHttpRequest();
-            xhr1.open("GET", "acabar", true);
+            xhr1.open("GET", 'acabar?code='+code, true);
 
 
 
@@ -372,13 +377,31 @@
             };
             var nom = getUrlParameter('nom');
             var id = $(this).attr('id');
-            check(id,nom) == "true"
+            check(id, nom) == "true"
 
 
             inici();
         });
 
+        function myFunction() {
 
+
+            
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", 'user2?code='+code, true);
+
+
+            xhr.onload = function (e) {
+                if (this.status == 200) {
+                    document.location = './login';
+                }
+
+
+            }
+            xhr.send();
+
+        }
 
 
     </script>
@@ -386,7 +409,8 @@
 
 <body>
     <br>
-    <button onclick="acabar()">Acabar partida</button>
+    <button onclick="acabar()">Enviar a mongo</button>
+    <button onclick="myFunction()">Logout y acabar</button>
 </body>
 
 </html>

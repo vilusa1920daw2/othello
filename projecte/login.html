@@ -10,7 +10,7 @@
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
    
     <script type="text/javascript">
-        
+        window.addEventListener("load", inici, true);
 
 
 
@@ -26,12 +26,13 @@
             var name=document.getElementById("user").value;
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "user?nom="+name, true);
+            xhr.open("GET", "user", true);
 
 
             xhr.onload = function (e) {
                 if (this.status == 200) {
-                    document.location='./tabla?nom='+name;
+                    console.log(this.response);
+                    document.location='./tabla?nom='+name+'&code='+this.response;
                 }
 
                 
@@ -57,7 +58,8 @@
             xhr.send();
         }
 
-        window.addEventListener("load", inici, true);
+       
+
 
     </script>
 </head>
