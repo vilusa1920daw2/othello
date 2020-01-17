@@ -1,18 +1,3 @@
-/*
- * Servidor HTTP que rep una cadena i la retorna invertida
- * @author  sergi.grau@fje.edu
- * @version 1.0
- * date 06.12.2015
- * format del document UTF-8
- *
- * CHANGELOG
- * 06.12.2015
- * - Servidor HTTP que rep una cadena i la retorna invertida
- *
- * NOTES
- * ORIGEN
- * Desenvolupament Aplicacions Web. Jesuïtes el Clot
- */
 var http = require("http");
 var path = require("path");
 var url = require("url");
@@ -24,8 +9,6 @@ const basePath = __dirname;
 
 var assets = path.join(basePath, 'assets');
 var tt = "false";
-
-
 
 class Jugador {
 	constructor(nombre, color, cantidad, codiPartida, turno) {
@@ -162,6 +145,7 @@ for (var b = 1; b < 9; b++) {
 	}
 
 }
+// Inserta
 function mongodbf() {
 	var urldb = 'mongodb://localhost:27017/';
 	MongoClient.connect(urldb, function (err, dbo) {
@@ -193,6 +177,7 @@ function mongodbf() {
 
 	});
 }
+// Consulta
 function mongodbf2() {
 	var urldb = 'mongodb://localhost:27017/';
 	console.log("hei");
@@ -225,9 +210,6 @@ function mongodbf2() {
 }
 
 function iniciar() {
-
-
-
 	function onRequest(request, response) {
 		var sortida;
 		var pathname = url.parse(request.url).pathname;
@@ -239,10 +221,18 @@ function iniciar() {
 				"Content-Type": "text/html; charset=utf-8"
 			});
 
-
 			fs.readFile('./login.html', function (err, sortida) {
 				response.writeHead(200, {
 					'Content-Type': 'text/html'
+				});
+				response.write(sortida);
+				response.end();
+			});
+
+		} else if(pathname == '/assets/style.css'){
+			fs.readFile('./assets/style.css', function (err, sortida) {
+				response.writeHead(200, {
+					'Content-Type': 'text/css'
 				});
 				response.write(sortida);
 				response.end();
